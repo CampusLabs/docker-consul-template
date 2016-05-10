@@ -25,7 +25,8 @@ nginx:
   ports:
     - "80:80"
   volumes:
-    - /tmp/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - /tmp/nginx:/tmp/nginx
+  command: nginx -g "daemon off;" -c "/tmp/nginx/nginx.conf"
 ```
 
 In `restart-nginx`, send a `HUP` signal to nginx:
@@ -33,8 +34,8 @@ In `restart-nginx`, send a `HUP` signal to nginx:
 ```bash
 #!/bin/bash -e
 
-NAME=nginx
+NAME=orgsync_nginx_1
 SIGNAL=HUP
 COMMAND="POST /containers/${NAME}/kill?signal=${SIGNAL} HTTP/1.0\n"
-echo $COMMAND | nc -U /tmp/docker.sock
+echo -e $COMMAND | nc -U /tmp/docker.sock
 ```
