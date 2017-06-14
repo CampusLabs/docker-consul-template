@@ -1,15 +1,15 @@
-FROM quay.io/orgsync/base:1.0.0
+FROM alpine:3.6
 
-ENV VERSION 0.14.0
-WORKDIR /consul-template
-RUN apt-get update \
-  && apt-get install -y unzip netcat-openbsd \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-  && wget https://releases.hashicorp.com/consul-template/${VERSION}/consul-template_${VERSION}_linux_amd64.zip \
-  && unzip consul-template_${VERSION}_linux_amd64.zip \
-  && mv consul-template /bin/ \
-  && rm -R /consul-template
+ENV CONSUL_TEMPLATE_VERSION 0.18.5
 
-WORKDIR /
-ENTRYPOINT ["/bin/consul-template"]
+RUN apk update && \
+    apk add ca-certificates wget unzip && \
+    update-ca-certificates
+
+RUN wget -O /tmp/consul-template.zip https://releases.hashicorp.com/consul-template/${CONSUL_TEMPLATE_VERSION}/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip && \
+    unzip /tmp/consul-template.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/consul-template && \
+    rm -rf consul-template.zip
+
+WORKDIR /etc/consul-template
+ENTRYPOINT ["/usr/local/bin/consul-template"]
